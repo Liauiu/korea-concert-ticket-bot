@@ -1,25 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Melon Ticket Form</title>
-  <link rel="stylesheet" href="../form/form.css" />
-</head>
-<body>
-  <form>
-    <input type="text" name="concert-name" placeholder="Concert Name" required />
-    <input type="text" name="concert-id" placeholder="Concert ID" required />
-    <select name="number" required>
-      <option value="1">1 Place</option>
-      <option value="2">2 Places</option>
-    </select>
-    <input type="date" name="date" required />
-    <input type="time" name="time" required />
-    <input type="text" name="first-section" placeholder="First Priority Sections (e.g. A,M,R...)" required />
-    <input type="text" name="second-section" placeholder="Second Priority Sections (e.g. 218,217...)" />
-    <input type="text" name="slack-url" placeholder="Slack Webhook URL" required />
-    <button type="submit" id="melon">Submit</button>
-  </form>
-  <script type="module" src="../form/script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Melon Ticket Form</title>
+    <link rel="stylesheet" href="../form/form.css" />
+  </head>
+  <body>
+    <form>
+      <input
+        type="text"
+        name="concert-name"
+        placeholder="Enter Concert Name"
+        required
+      />
+      <input
+        type="text"
+        name="concert-id"
+        placeholder="Enter Concert ID"
+        required
+      />
+      <select name="number" required>
+        <option value="1">1 Place</option>
+        <option value="2">2 Places</option>
+      </select>
+      <input type="date" name="date" required />
+      <input type="time" name="time" required />
+
+      <!-- ✅ 第一优先区域 -->
+      <input
+        type="text"
+        name="first-section"
+        placeholder="Enter First Priority Sections (e.g., A,M,R,E)"
+        required
+      />
+
+      <!-- ✅ 第二优先区域 -->
+      <input
+        type="text"
+        name="second-section"
+        placeholder="Enter Second Priority Sections (e.g., 218,217,216)"
+      />
+
+      <!-- ✅ 优先排数 -->
+      <input
+        type="text"
+        name="preferred-rows"
+        placeholder="Enter Preferred Rows (e.g., A,B,C,D,E)"
+      />
+
+      <button type="submit" id="melon">Submit</button>
+    </form>
+    <script type="module" src="../form/script.js"></script>
+  </body>
 </html>
