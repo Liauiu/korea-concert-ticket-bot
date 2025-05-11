@@ -1,11 +1,9 @@
 import { get_stored_value } from "../module/storage.js";
 
 (async function () {
-  // 获取当前演唱会 ID
   const urlParams = new URLSearchParams(window.location.search);
   const concertId = urlParams.get("concertId");
 
-  // 读取配置
   const config = await get_stored_value(concertId);
   if (!config) {
     alert("❌ 没有找到演唱会配置，请重新设置！");
@@ -16,7 +14,9 @@ import { get_stored_value } from "../module/storage.js";
   const secondPriority = config["second-section"] || [];
   const targetSections = [...firstPriority, ...secondPriority];
 
-  // 等待座位加载完毕
+  // 你的 Slack Webhook 地址（你之前生成的那个）
+  const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/xxx/xxx/xxx"; // ← 👈 别忘了替换
+
   const waitForSeatsToLoad = () =>
     new Promise((resolve) => {
       const check = () => {
@@ -32,18 +32,35 @@ import { get_stored_value } from "../module/storage.js";
 
   await waitForSeatsToLoad();
 
-  // 尝试锁票
   let locked = false;
+  let matchedSection = null;
+  let matchedPriority = null;
+
   for (const section of targetSections) {
     const selector = `.seat_area > div[data-section-name='${section}'] .available`;
     const seat = document.querySelector(selector);
     if (seat) {
       seat.click();
       locked = true;
-      alert(`🎫 找到座位！区域：${section}，已尝试锁定`);
+      matchedSection = section;
+      matchedPriority = firstPriority.includes(section) ? "第一优先" : "第二优先";
       break;
     }
   }
+
+  if (locked && SLACK_WEBHOOK_URL) {
+    const message = {
+      text: `🎫 [${matchedPriority}] 你关注的【${matchedSection}区】现在有票！快去锁！🎯`,
+    };
+    fetch(SLACK_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(message),
+    });
+  } else {
+    console.log("😢 没有找到座位");
+  }
+})();
 
   if (!locked) {
     console.log("😢 没找到可用座位");
