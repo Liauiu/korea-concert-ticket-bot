@@ -3,8 +3,8 @@ import { get_stored_value } from "../module/storage.js";
 (async function () {
   const urlParams = new URLSearchParams(window.location.search);
   const concertId = urlParams.get("concertId");
-
   const config = await get_stored_value(concertId);
+
   if (!config) {
     alert("❌ 没有找到演唱会配置，请重新设置！");
     return;
@@ -12,19 +12,15 @@ import { get_stored_value } from "../module/storage.js";
 
   const firstPriority = config["first-section"] || [];
   const secondPriority = config["second-section"] || [];
-  const targetSections = [...firstPriority, ...secondPriority];
-
-  const SLACK_WEBHOOK_URL = config["slack-webhook-url"] || "";
+  const preferredRows = config["preferred-rows"] || [];
+  const SLACK_WEBHOOK_URL = "你的_slack_webhook_url"; // 替换为 GitHub Secret 或占位符
 
   const waitForSeatsToLoad = () =>
     new Promise((resolve) => {
       const check = () => {
         const loaded = document.querySelectorAll(".seat_area > div").length > 0;
-        if (loaded) {
-          resolve();
-        } else {
-          setTimeout(check, 500);
-        }
+        if (loaded) resolve();
+        else setTimeout(check, 500);
       };
       check();
     });
@@ -33,50 +29,41 @@ import { get_stored_value } from "../module/storage.js";
 
   let locked = false;
   let matchedSection = null;
-  let matchedPriority = null;
+  let matchedRow = null;
 
-  for (const section of targetSections) {
-    const selector = `.seat_area > div[data-section-name='${section}'] .available`;
-    const seat = document.querySelector(selector);
-    if (seat) {
-      seat.click();
-      locked = true;
-      matchedSection = section;
-      matchedPriority = firstPriority.includes(section) ? "第一优先" : "第二优先";
+  const sections = [...firstPriority, ...secondPriority];
 
-      // ✅ 自动点击 “Seat Selection Completed” 按钮
-      const confirmButton = document.querySelector(".btn_onestop .button");
-      if (confirmButton) {
-        confirmButton.click();
+  for (const section of sections) {
+    const block = document.querySelector(`.seat_area > div[data-section-name='${section}']`);
+    if (!block) continue;
+
+    const availableSeats = block.querySelectorAll(".available");
+
+    for (const seat of availableSeats) {
+      const rowInfo = seat.getAttribute("data-seat-row")?.toUpperCase() || "";
+      if (preferredRows.length === 0 || preferredRows.includes(rowInfo)) {
+        seat.click();
+        matchedSection = section;
+        matchedRow = rowInfo || "N/A";
+        locked = true;
+        break;
       }
-
-      break;
     }
+    if (locked) break;
   }
 
-  if (locked && SLACK_WEBHOOK_URL) {
-    const message = {
-      text: `🎫 [${matchedPriority}] 你关注的【${matchedSection}区】现在有票！我已自动锁票 ✅`,
-    };
-    fetch(SLACK_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(message),
-    });
-  } else {
-    console.log("😢 没有找到座位");
-
-    // 🔔 如果没票，但希望发一次通知（可选）
-    const notifyOnNoTicket = false;
-    if (notifyOnNoTicket && SLACK_WEBHOOK_URL) {
-      const message = {
-        text: `🕵️‍♀️ 本轮查询没有找到票：${targetSections.join(", ")}`,
-      };
+  if (locked) {
+    document.querySelector("#nextBtn")?.click(); // 自动跳转下一步
+    if (SLACK_WEBHOOK_URL && SLACK_WEBHOOK_URL.startsWith("https")) {
       fetch(SLACK_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(message),
+        body: JSON.stringify({
+          text: `🎉 检测到有票！\n区域：${matchedSection}，排数：${matchedRow}。\n⚡ 正在自动锁票并跳转付款！`,
+        }),
       });
     }
+  } else {
+    console.log("😢 没有找到符合条件的票");
   }
 })();
