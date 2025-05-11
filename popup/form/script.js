@@ -5,27 +5,32 @@ window.onclick = function(event) {
     if (target.classList.contains("close")) {
         window.history.back();
     }
-}
+};
 
-
-document.addEventListener('DOMContentLoaded', function  () {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
 
     form.addEventListener('submit', async function (event) {
         event.preventDefault();
         form.getElementsByTagName("button")[0].disabled = true;
-        
+
         let data = {};
         const formData = new FormData(form);
         for (const [key, value] of formData.entries()) {
             data[key] = value;
         }
-        data["section"] = data["section"].split(",");
+
+        data["section"] = (data["section"] || "").split(",").map(s => s.trim());
+        data["first-section"] = (data["first-section"] || "").split(",").map(s => s.trim());
+        data["second-section"] = (data["second-section"] || "").split(",").map(s => s.trim());
+
         data["platform"] = form.getElementsByTagName("button")[0].id;
+
         let array = await get_stored_value("autoBooking") || [];
         store_value(data["concert-id"], data);
         array.push(data);
         store_value("autoBooking", array);
+
         window.history.back();
     });
 });
