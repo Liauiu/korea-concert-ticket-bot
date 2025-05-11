@@ -14,8 +14,8 @@ import { get_stored_value } from "../module/storage.js";
   const secondPriority = config["second-section"] || [];
   const targetSections = [...firstPriority, ...secondPriority];
 
-  // 你的 Slack Webhook 地址（你之前生成的那个）
-  const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/xxx/xxx/xxx"; // ← 👈 别忘了替换
+  // 你的 Slack Webhook 地址
+  const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
 
   const waitForSeatsToLoad = () =>
     new Promise((resolve) => {
@@ -59,10 +59,5 @@ import { get_stored_value } from "../module/storage.js";
     });
   } else {
     console.log("😢 没有找到座位");
-  }
-})();
-
-  if (!locked) {
-    console.log("😢 没找到可用座位");
   }
 })();
