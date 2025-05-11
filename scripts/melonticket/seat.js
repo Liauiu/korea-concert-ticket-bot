@@ -1,4 +1,4 @@
-import { get_stored_value } from "../module/storage.js";
+import { get_stored_value } from "../../module/storage.js";
 
 (async function () {
   const urlParams = new URLSearchParams(window.location.search);
@@ -6,26 +6,20 @@ import { get_stored_value } from "../module/storage.js";
 
   const config = await get_stored_value(concertId);
   if (!config) {
-    alert("❌ 没有找到演唱会配置，请重新设置！");
+    alert("❌ 配置未找到！");
     return;
   }
 
   const firstPriority = config["first-section"] || [];
   const secondPriority = config["second-section"] || [];
+  const slackUrl = config["slack-url"];
   const targetSections = [...firstPriority, ...secondPriority];
-
-  // 你的 Slack Webhook 地址
-  const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
 
   const waitForSeatsToLoad = () =>
     new Promise((resolve) => {
       const check = () => {
-        const loaded = document.querySelectorAll(".seat_area > div").length > 0;
-        if (loaded) {
-          resolve();
-        } else {
-          setTimeout(check, 500);
-        }
+        if (document.querySelectorAll(".seat_area > div").length > 0) resolve();
+        else setTimeout(check, 500);
       };
       check();
     });
@@ -48,16 +42,15 @@ import { get_stored_value } from "../module/storage.js";
     }
   }
 
-  if (locked && SLACK_WEBHOOK_URL) {
-    const message = {
-      text: `🎫 [${matchedPriority}] 你关注的【${matchedSection}区】现在有票！快去锁！🎯`,
-    };
-    fetch(SLACK_WEBHOOK_URL, {
+  if (slackUrl) {
+    const text = locked
+      ? `🎯 ${matchedPriority} 的【${matchedSection}】区有票已锁定！`
+      : `😢 目前无票（${concertId}）`;
+    fetch(slackUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(message),
+      body: JSON.stringify({ text }),
     });
-  } else {
-    console.log("😢 没有找到座位");
   }
 })();
+
