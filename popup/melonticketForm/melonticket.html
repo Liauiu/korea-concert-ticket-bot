@@ -1,65 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <title>Melon Ticket Form</title>
-    <link rel="stylesheet" href="../form/form.css" />
+    <title>Melon Ticket Config</title>
   </head>
   <body>
     <form>
-      <input
-        type="text"
-        name="concert-name"
-        placeholder="Enter Concert Name"
-        required
-      />
-      <input
-        type="text"
-        name="concert-id"
-        placeholder="Enter Concert ID"
-        required
-      />
-      <select name="number" required>
-        <option value="1">1 Place</option>
-        <option value="2">2 Places</option>
-      </select>
-      <input
-        type="date"
-        name="date"
-        placeholder="Enter Date"
-        required
-      />
-      <input
-        type="time"
-        name="time"
-        placeholder="Enter Time"
-        required
-      />
-      <input
-        type="text"
-        name="section"
-        placeholder="Enter Sections (e.g., A,B,C,218,217)"
-        required
-      />
-
-      <!-- ✅ 第一优先区域 -->
-      <input
-        type="text"
-        name="first-section"
-        placeholder="Enter First Priority Sections (e.g., A,M,R,E,T,D,N,C)"
-        required
-      />
-
-      <!-- ✅ 第二优先区域 -->
-      <input
-        type="text"
-        name="second-section"
-        placeholder="Enter Second Priority Sections (e.g., 218,217,216,219)"
-      />
-
-      <button type="submit" id="melon">Submit</button>
+      <label>
+        Concert ID:
+        <input type="text" name="concert-id" required />
+      </label>
+      <br />
+      <label>
+        First Priority Sections:
+        <input type="text" name="first-section" placeholder="例如：A,B,C" />
+      </label>
+      <br />
+      <label>
+        Second Priority Sections:
+        <input type="text" name="second-section" placeholder="例如：217,218" />
+      </label>
+      <br />
+      <label>
+        Slack Webhook URL:
+        <input type="text" name="webhook" placeholder="https://hooks.slack.com/..." />
+      </label>
+      <br />
+      <button type="submit" id="melon">保存并启动</button>
     </form>
-    <script type="module" src="../form/script.js"></script>
+
+    <script type="module" src="../scripts/melonticket/popup.js"></script>
   </body>
 </html>
 
