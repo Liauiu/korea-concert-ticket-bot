@@ -1,4 +1,3 @@
-// ✅ popup.html
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,117 +7,58 @@
   </head>
   <body>
     <form>
-      <input type="text" name="concert-name" placeholder="Enter Concert Name" required />
-      <input type="text" name="concert-id" placeholder="Enter Concert ID" required />
+      <input
+        type="text"
+        name="concert-name"
+        placeholder="Enter Concert Name"
+        required
+      />
+      <input
+        type="text"
+        name="concert-id"
+        placeholder="Enter Concert ID"
+        required
+      />
       <select name="number" required>
         <option value="1">1 Place</option>
         <option value="2">2 Places</option>
       </select>
-      <input type="date" name="date" placeholder="Enter Date" required />
-      <input type="time" name="time" placeholder="Enter Time" required />
-      <input type="text" name="section" placeholder="Enter Sections (e.g., A,B,C,218,217)" required />
-      <input type="text" name="first-section" placeholder="Enter First Priority Sections" required />
-      <input type="text" name="second-section" placeholder="Enter Second Priority Sections" />
-      <input type="text" name="slack-url" placeholder="Enter Slack Webhook URL" required /> <!-- ✅ 新增 -->
+      <input
+        type="date"
+        name="date"
+        placeholder="Enter Date"
+        required
+      />
+      <input
+        type="time"
+        name="time"
+        placeholder="Enter Time"
+        required
+      />
+      <input
+        type="text"
+        name="section"
+        placeholder="Enter Sections (e.g., A,B,C,218,217)"
+        required
+      />
+
+      <!-- ✅ 第一优先区域 -->
+      <input
+        type="text"
+        name="first-section"
+        placeholder="Enter First Priority Sections (e.g., A,M,R,E,T,D,N,C)"
+        required
+      />
+
+      <!-- ✅ 第二优先区域 -->
+      <input
+        type="text"
+        name="second-section"
+        placeholder="Enter Second Priority Sections (e.g., 218,217,216,219)"
+      />
+
       <button type="submit" id="melon">Submit</button>
     </form>
     <script type="module" src="../form/script.js"></script>
   </body>
 </html>
-
-
-// ✅ script.js
-import { get_stored_value, store_value } from "../module/storage.js";
-
-window.onclick = function(event) {
-    const target = event.target;
-    if (target.classList.contains("close")) {
-        window.history.back();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  const form = document.querySelector('form');
-  form.addEventListener('submit', async function (event) {
-    event.preventDefault();
-    form.getElementsByTagName("button")[0].disabled = true;
-
-    let data = {};
-    const formData = new FormData(form);
-    for (const [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-
-    data["section"] = data["section"].split(",");
-    data["first-section"] = data["first-section"].split(",");
-    data["second-section"] = data["second-section"].split(",");
-    data["slack-url"] = data["slack-url"];
-    data["platform"] = form.getElementsByTagName("button")[0].id;
-
-    let array = await get_stored_value("autoBooking") || [];
-    store_value(data["concert-id"], data);
-    array.push(data);
-    store_value("autoBooking", array);
-    window.history.back();
-  });
-});
-
-
-// ✅ seat.js（只展示与 webhook 有关的核心逻辑）
-import { get_stored_value } from "../module/storage.js";
-
-(async function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const concertId = urlParams.get("concertId");
-
-  const config = await get_stored_value(concertId);
-  if (!config) {
-    alert("❌ 没有找到演唱会配置，请重新设置！");
-    return;
-  }
-
-  const firstPriority = config["first-section"] || [];
-  const secondPriority = config["second-section"] || [];
-  const targetSections = [...firstPriority, ...secondPriority];
-  const SLACK_WEBHOOK_URL = config["slack-url"] || ""; // ✅ 动态读取
-
-  const waitForSeatsToLoad = () => new Promise((resolve) => {
-    const check = () => {
-      const loaded = document.querySelectorAll(".seat_area > div").length > 0;
-      if (loaded) resolve();
-      else setTimeout(check, 500);
-    };
-    check();
-  });
-
-  await waitForSeatsToLoad();
-
-  let locked = false;
-  let matchedSection = null;
-  let matchedPriority = null;
-
-  for (const section of targetSections) {
-    const selector = `.seat_area > div[data-section-name='${section}'] .available`;
-    const seat = document.querySelector(selector);
-    if (seat) {
-      seat.click();
-      locked = true;
-      matchedSection = section;
-      matchedPriority = firstPriority.includes(section) ? "第一优先" : "第二优先";
-      break;
-    }
-  }
-
-  if (locked && SLACK_WEBHOOK_URL) {
-    const message = {
-      text: `🎫 [${matchedPriority}] 你关注的【${matchedSection}区】现在有票！快去锁！🎯`,
-    };
-    fetch(SLACK_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(message),
-    });
-  } else {
-    console.log("😢 没找到可用座位");
-  }
-})();
