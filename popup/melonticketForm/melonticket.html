@@ -1,23 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="../mainPage/style.css">
-    <link rel="stylesheet" href="../back-arrow.css">
-    <link rel="stylesheet" href="../form/form.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <title>Melon Ticket Settings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 16px;
+    }
+    input, textarea {
+      width: 100%;
+      margin: 6px 0 16px 0;
+      padding: 8px;
+    }
+    button {
+      padding: 10px;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-    <div class="back-arrow close">
-        <i class="fas fa-angle-left close"></i>
-    </div>
-    <form>
-        <div include-html="../form/form.html"></div>
-        
-        <div class="button-row">
-            <button class="button-concert" id="melon" type="submit">Submit</button>
-        </div>
-    </form>
+  <h2>🎫 Melon Ticket Monitor</h2>
+
+  <label>Concert ID:</label>
+  <input type="text" id="concert-id" placeholder="e.g. 211217" />
+
+  <label>Date (YYYY-MM-DD):</label>
+  <input type="date" id="concert-date" />
+
+  <label>Time (24hr, e.g. 17:00):</label>
+  <input type="time" id="concert-time" />
+
+  <label>Preferred Sections - 1st Priority:</label>
+  <input type="text" id="priority-1" placeholder="e.g. A,M,R,E,T,D,N,C" />
+
+  <label>Preferred Sections - 2nd Priority:</label>
+  <input type="text" id="priority-2" placeholder="e.g. 218,217,216,219,205" />
+
+  <button id="submit-btn">Submit</button>
+
+  <script src="script.js"></script>
 </body>
-<script src="../module/includeHTML.js"></script>
-<script type="module" src="../form/script.js"></script>
 </html>
