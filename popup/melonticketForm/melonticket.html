@@ -1,51 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Melon Ticket Settings</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 16px;
-    }
-    input, textarea {
-      width: 100%;
-      margin: 6px 0 16px 0;
-      padding: 8px;
-    }
-    button {
-      padding: 10px;
-      width: 100%;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
-</head>
-<body>
-  <h2>🎫 Melon Ticket Monitor</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Melon Ticket Form</title>
+    <link rel="stylesheet" href="../form/form.css" />
+  </head>
+  <body>
+    <form>
+      <input
+        type="text"
+        name="concert-name"
+        placeholder="Enter Concert Name"
+        required
+      />
+      <input
+        type="text"
+        name="concert-id"
+        placeholder="Enter Concert ID"
+        required
+      />
+      <select name="number" required>
+        <option value="1">1 Place</option>
+        <option value="2">2 Places</option>
+      </select>
+      <input
+        type="date"
+        name="date"
+        placeholder="Enter Date"
+        required
+      />
+      <input
+        type="time"
+        name="time"
+        placeholder="Enter Time"
+        required
+      />
+      <input
+        type="text"
+        name="section"
+        placeholder="Enter Sections (e.g., A,B,C,218,217)"
+        required
+      />
 
-  <label>Concert ID:</label>
-  <input type="text" id="concert-id" placeholder="e.g. 211217" />
+      <!-- ✅ 第一优先区域 -->
+      <input
+        type="text"
+        name="first-section"
+        placeholder="Enter First Priority Sections (e.g., A,M,R,E,T,D,N,C)"
+        required
+      />
 
-  <label>Date (YYYY-MM-DD):</label>
-  <input type="date" id="concert-date" />
+      <!-- ✅ 第二优先区域 -->
+      <input
+        type="text"
+        name="second-section"
+        placeholder="Enter Second Priority Sections (e.g., 218,217,216,219)"
+      />
 
-  <label>Time (24hr, e.g. 17:00):</label>
-  <input type="time" id="concert-time" />
-
-  <label>Preferred Sections - 1st Priority:</label>
-  <input type="text" id="priority-1" placeholder="e.g. A,M,R,E,T,D,N,C" />
-
-  <label>Preferred Sections - 2nd Priority:</label>
-  <input type="text" id="priority-2" placeholder="e.g. 218,217,216,219,205" />
-
-  <button id="submit-btn">Submit</button>
-
-  <script src="script.js"></script>
-</body>
+      <button type="submit" id="melon">Submit</button>
+    </form>
+    <script type="module" src="../form/script.js"></script>
+  </body>
 </html>
+
