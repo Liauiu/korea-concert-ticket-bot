@@ -42,5 +42,5 @@ function delete_value(key)
 export {
     get_stored_value,
     store_value,
-    delete_value
+    delete_value as delete_stored_value
 }
