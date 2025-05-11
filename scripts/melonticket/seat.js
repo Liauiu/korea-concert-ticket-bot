@@ -1,99 +1,51 @@
-async function sleep(t) {
-    return await new Promise(resolve => setTimeout(resolve, t));
-}
+import { get_stored_value } from "../module/storage.js";
 
-function theFrame() {
-    if (window._theFrameInstance == null) {
-      window._theFrameInstance = document.getElementById('oneStopFrame').contentWindow;
-    }
-  
-    return window._theFrameInstance;
-}
+(async function () {
+  // 获取当前演唱会 ID
+  const urlParams = new URLSearchParams(window.location.search);
+  const concertId = urlParams.get("concertId");
 
-function getConcertId() {
-    return document.getElementById("prodId").value;
-}
-
-function openEverySection() {
-    let frame = theFrame();
-    let section = frame.document.getElementsByClassName("seat_name");
-    console.log(section);
-    for (let i = 0; i < section.length; i++) {
-        section[i].parentElement.click();
-    }
-}
-
-function clickOnArea(area) {
-    let frame = theFrame();
-    let section = frame.document.getElementsByClassName("area_tit");
-    for (let i = 0; i < section.length; i++) {
-        let reg = new RegExp(area + "\$","g");
-        if (section[i].innerHTML.match(reg)) {
-            section[i].parentElement.click();
-            return;
-        }
-    }
-}
-
-async function findSeat() {
-    let frame = theFrame();
-    let canvas = frame.document.getElementById("ez_canvas");
-    let seat = canvas.getElementsByTagName("rect");
-    console.log(seat);
-    await sleep(750);
-    for (let i = 0; i < seat.length; i++) {
-        let fillColor = seat[i].getAttribute("fill");
-    
-        // Check if fill color is different from #DDDDDD or none
-        if (fillColor !== "#DDDDDD" && fillColor !== "none") {
-            console.log("Rect with different fill color found:", seat[i]);
-            var clickEvent = new Event('click', { bubbles: true });
-
-            seat[i].dispatchEvent(clickEvent);
-            frame.document.getElementById("nextTicketSelection").click();
-            return true;
-        }
-    }
-    return false;
-}
-
-async function checkCaptchaFinish() {
-    if (document.getElementById("certification").style.display != "none") {
-        await sleep(1000);
-        checkCaptchaFinish();
-        return;
-    }
-    let frame = theFrame();
-    await sleep(500);
-    frame.document.getElementById("nextTicketSelection").click();
+  // 读取配置
+  const config = await get_stored_value(concertId);
+  if (!config) {
+    alert("❌ 没有找到演唱会配置，请重新设置！");
     return;
-}
+  }
 
-async function reload() {
-    let frame = theFrame();
-    frame.document.getElementById("btnReloadSchedule").click();
-    await sleep(750);
-}
+  const firstPriority = config["first-section"] || [];
+  const secondPriority = config["second-section"] || [];
+  const targetSections = [...firstPriority, ...secondPriority];
 
-async function searchSeat(data) {
-    for (sec of data.section) {
-        openEverySection();
-        clickOnArea(sec);
-        if (await findSeat()) {
-            checkCaptchaFinish();
-            return;
+  // 等待座位加载完毕
+  const waitForSeatsToLoad = () =>
+    new Promise((resolve) => {
+      const check = () => {
+        const loaded = document.querySelectorAll(".seat_area > div").length > 0;
+        if (loaded) {
+          resolve();
+        } else {
+          setTimeout(check, 500);
         }
+      };
+      check();
+    });
+
+  await waitForSeatsToLoad();
+
+  // 尝试锁票
+  let locked = false;
+  for (const section of targetSections) {
+    const selector = `.seat_area > div[data-section-name='${section}'] .available`;
+    const seat = document.querySelector(selector);
+    if (seat) {
+      seat.click();
+      locked = true;
+      alert(`🎫 找到座位！区域：${section}，已尝试锁定`);
+      break;
     }
-    reload();
-    await searchSeat(data);
-}
+  }
 
-async function waitFirstLoad() {
-    let concertId = getConcertId();
-    let data = await get_stored_value(concertId);
-    await sleep(1000);
-    searchSeat(data);
-}
-
-
-waitFirstLoad();
+  if (!locked) {
+    console.log("😢 没找到可用座位");
+  }
+})();
